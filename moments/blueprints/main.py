@@ -5,6 +5,7 @@ from sqlalchemy.orm import with_parent
 
 from moments.core.extensions import db
 from moments.decorators import confirm_required, permission_required
+from moments.features.quality import assess
 from moments.forms.main import CommentForm, DescriptionForm, TagForm
 from moments.models import Collection, Comment, Follow, Notification, Photo, Tag, User
 from moments.notifications import push_collect_notification, push_comment_notification
@@ -129,12 +130,21 @@ def upload():
         f = request.files.get('file')
         if not validate_image(f.filename):
             return 'Invalid image.', 400
+
+        # quality gate
+        raw = f.read()
+        f.seek(0)
+        score, blocked = assess(raw)
+        if blocked:
+            return 'Image quality too low.', 400
+        
         filename = rename_image(f.filename)
         f.save(current_app.config['MOMENTS_UPLOAD_PATH'] / filename)
         filename_s = resize_image(f, filename, current_app.config['MOMENTS_PHOTO_SIZES']['small'])
         filename_m = resize_image(f, filename, current_app.config['MOMENTS_PHOTO_SIZES']['medium'])
         photo = Photo(
-            filename=filename, filename_s=filename_s, filename_m=filename_m, author=current_user._get_current_object()
+            filename=filename, filename_s=filename_s, filename_m=filename_m, 
+            quality_score=score, author=current_user._get_current_object()
         )
         db.session.add(photo)
         db.session.commit()

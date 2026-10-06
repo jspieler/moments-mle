@@ -291,6 +291,8 @@ class Photo(db.Model):
     created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc), index=True)
     can_comment: Mapped[bool] = mapped_column(default=True)
     flag: Mapped[int] = mapped_column(default=0)
+    # written by the quality gate at upload time
+    quality_score: Mapped[Optional[float]] = mapped_column(default=None)
 
     author_id: Mapped[int] = mapped_column(ForeignKey('user.id', ondelete='CASCADE'))
 
