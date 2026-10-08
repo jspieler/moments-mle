@@ -6,12 +6,15 @@ Demo: http://moments.helloflask.com
 
 ![Screenshot](demo.png)
 
+> [!NOTE]
+> This is a fork of https://github.com/greyli/moments for educational purposes only.
+
 ## Installation
 
 Clone the repo:
 
 ```
-$ git clone https://github.com/greyli/moments
+$ git clone https://github.com/jspieler/moments-mle
 $ cd moments
 ```
 
